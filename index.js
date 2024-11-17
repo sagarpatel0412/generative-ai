@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-undef */
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
@@ -8,6 +10,7 @@ dotenv.config();
 const PORT = process.env.NODE_PORT || 8000;
 const { model } = require('./generative-ai');
 const { sequelize } = require('./sequelize');
+const passport = require('./src/auth/passport');
 
 app.use(cors());
 app.use(morgan('dev'));
@@ -17,8 +20,9 @@ app.use(
     extended: true,
   })
 );
+app.use(passport.initialize());
 
-app.get('/', (req, res) => {
+app.get('/', passport.customAuthenticate('jwt'), (req, res) => {
   return res.status(201).json({
     message: 'Welcome to generative ai',
   });
@@ -45,7 +49,7 @@ app.post('/model', async (req, res) => {
               /(\".*?\"|\'.*?\')/g,
               '<span class="string">$1</span>'
             ); // Strings
-            text1 = text1.replace(/(#.*)/g, '<span class="comment">$1</span>'); // Single-line comments
+            text1 = text1.replace(/(#.*)/g, '<span class="comment">$1</span>');
             return {
               question: req.body.prompt,
               ...ik,
