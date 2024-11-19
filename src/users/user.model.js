@@ -1,7 +1,20 @@
 const { DataTypes } = require('sequelize');
-const { seqeulize } = require('../../sequelize');
+const { sequelize } = require('../../sequelize');
 
-const UsersModel = seqeulize.define(
+const crypto = require('crypto')
+
+function hashPassword(password) {
+  return crypto
+      .createHash('sha256')
+      .update(`${password}${process.env.SALT}`)
+      .digest('base64');
+}
+
+function normalizeEmail(email) {
+  return email.trim().toLowerCase();
+}
+
+const UsersModel = sequelize.define(
   'users',
   {
     id: {
@@ -20,6 +33,7 @@ const UsersModel = seqeulize.define(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      field: 'username'
     },
     firstname: {
       type: DataTypes.STRING,
@@ -59,6 +73,17 @@ const UsersModel = seqeulize.define(
     updatedAt: 'updated_at',
     paranoid: true,
     deletedAt: 'deleted_at',
+    hooks: {
+      beforeCreate: async (user) => {
+        user.email = normalizeEmail(user.email)
+        user.password = hashPassword(user.password);
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed('password')) {
+          user.password = hashPassword(user.password);
+        }
+      },
+    },
   }
 );
 

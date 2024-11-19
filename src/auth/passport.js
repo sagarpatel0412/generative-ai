@@ -19,7 +19,7 @@ const unAuthObj = {
 passport.use(
   new JwtStrategy(options, (jwtPayload, done) => {
     try {
-      const user = { id: jwtPayload.id, username: jwtPayload.username };
+      const user = { sub: jwtPayload.sub, username: jwtPayload.username, email:jwtPayload.email };
 
       if (user) {
         return done(null, user);

@@ -11,6 +11,7 @@ const PORT = process.env.NODE_PORT || 8000;
 const { model } = require('./generative-ai');
 const { sequelize } = require('./sequelize');
 const passport = require('./src/auth/passport');
+const routes = require('./src/index')
 
 app.use(cors());
 app.use(morgan('dev'));
@@ -68,6 +69,8 @@ app.post('/model', async (req, res) => {
     });
   }
 });
+
+app.use('/api',routes)
 
 sequelize
   .sync({ force: false })
