@@ -1,21 +1,9 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../../sequelize');
 
-const crypto = require('crypto')
 
-function hashPassword(password) {
-  return crypto
-    .createHash('sha256')
-    .update(`${password}${process.env.SALT}`)
-    .digest('base64');
-}
-
-function normalizeEmail(email) {
-  return email.trim().toLowerCase();
-}
-
-const UsersModel = sequelize.define(
-  'users',
+const UsersChatWindowModel = sequelize.define(
+  'user_chat_window',
   {
     id: {
       type: DataTypes.UUIDV4,
@@ -24,8 +12,8 @@ const UsersModel = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
       allowNull: false,
     },
-    email: {
-      type: DataTypes.STRING,
+    user_id: {
+      type: DataTypes.UUIDV4,
       allowNull: false,
       unique: true,
     },
@@ -73,30 +61,7 @@ const UsersModel = sequelize.define(
     updatedAt: 'updated_at',
     paranoid: true,
     deletedAt: 'deleted_at',
-    hooks: {
-      beforeCreate: async (user) => {
-        user.email = normalizeEmail(user.email)
-        user.password = hashPassword(user.password);
-      },
-      beforeUpdate: async (user) => {
-        if (user.changed('password')) {
-          user.password = hashPassword(user.password);
-        }
-      },
-    },
-    indexes: [
-      {
-        unique: true,
-        fields: ['email'],
-        where: { deleted_at: null },
-      },
-      {
-        unique: true,
-        fields: ['username'],
-        where: { deleted_at: null },
-      },
-    ],
   }
 );
 
-module.exports = { UsersModel };
+module.exports = { UsersChatWindowModel };

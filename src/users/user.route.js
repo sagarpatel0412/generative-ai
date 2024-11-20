@@ -124,7 +124,7 @@ router.delete('/delete', passport.customAuthenticate('jwt'), async (req, res) =>
         if(userdetails !== null){
             const userdelete = await UsersModel.destroy({ where: { id: req.user.sub } })
             console.log("userdetails.dataValues",userdelete )
-            return res.status(201).json({ success: true, data: userdetails.dataValues, message: "User details" })
+            return res.status(201).json({ success: true, data: userdetails.dataValues,deleted:userdelete, message: "User details" })
         } else {
             return res.status(404).json({ success: false, message: "User Not Found" })
         }
